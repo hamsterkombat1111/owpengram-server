@@ -14,7 +14,7 @@ import (
 // render it without a client patch.
 const (
 	// MaxAccountRatingLevel bounds the local gramsrv level.
-	MaxAccountRatingLevel = 50
+	MaxAccountRatingLevel = 100
 	// accountRatingLevelUnit is the score required for level 1. Thresholds grow
 	// quadratically from it: level n needs accountRatingLevelUnit * n^2.
 	accountRatingLevelUnit = 100
