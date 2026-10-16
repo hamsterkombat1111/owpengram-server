@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { type Navigate, type RouteState } from "../routing";
 import { AccountDetailPage } from "./AccountDetailPage";
+import { AccountRatingDetailPage } from "./AccountRatingDetailPage";
+import { AccountRatingsPage } from "./AccountRatingsPage";
 import { AccountsPage } from "./AccountsPage";
 import { SharedDevicesPage } from "./SharedDevicesPage";
 import { CollectibleUsernameDetailPage } from "./CollectibleUsernameDetailPage";
@@ -14,10 +16,12 @@ import { Dashboard } from "./Dashboard";
 import { GroupMessageDetailPage } from "./GroupMessageDetailPage";
 import { MessageDetailPage } from "./MessageDetailPage";
 import { MessagesPage } from "./MessagesPage";
+import { GiftsPage } from "./GiftsPage";
 import { StickerSetsPage } from "./StickerSetsPage";
 import { GifCatalogPage } from "./GifCatalogPage";
 import { AdminUsersPage } from "./AdminUsersPage";
 import { ServerSettingsPage } from "./ServerSettingsPage";
+import { GiveGiftsPage } from "./GiveGiftsPage";
 import { ModerationCaseDetailPage } from "./ModerationCaseDetailPage";
 import { ModerationCasesPage } from "./ModerationCasesPage";
 import { StoragePage } from "./StoragePage";
@@ -58,6 +62,7 @@ export function Routes({ route, navigate }: { route: RouteState; navigate: Navig
   const moderationCaseID = route.path.match(/^\/moderation\/(\d+)$/)?.[1];
   // int64 ids stay strings so large values never lose precision.
   const collectibleUsernameID = route.path.match(/^\/collectible-usernames\/(\d+)$/)?.[1];
+  const ratingUserID = route.path.match(/^\/account-ratings\/(\d+)$/)?.[1];
   const verificationID = route.path.match(/^\/verification\/(\d+)$/)?.[1];
   // Third-party verification: a separate section with its own rights, matched before
   // the official one so neither prefix can shadow the other.
@@ -100,8 +105,14 @@ export function Routes({ route, navigate }: { route: RouteState; navigate: Navig
   if (collectibleUsernameID) {
     return gate(permissionUsernamesRead, <CollectibleUsernameDetailPage id={collectibleUsernameID} navigate={navigate} />);
   }
+  if (ratingUserID) {
+    return <AccountRatingDetailPage userID={ratingUserID} navigate={navigate} />;
+  }
   if (route.path === "/collectible-usernames") {
     return gate(permissionUsernamesRead, <CollectibleUsernamesPage navigate={navigate} />);
+  }
+  if (route.path === "/account-ratings") {
+    return <AccountRatingsPage navigate={navigate} />;
   }
   if (route.path === "/storage") {
     return gate(permissionStorageRead, <StoragePage navigate={navigate} />);
@@ -139,6 +150,12 @@ export function Routes({ route, navigate }: { route: RouteState; navigate: Navig
   if (route.path === "/emoji") {
     return gate(permissionContentRead, <StickerSetsPage kind="emoji" />);
   }
+	if (route.path === "/gifts") {
+		return gate(permissionContentRead, <GiftsPage />);
+	}
+	if (route.path === "/give-gifts") {
+		return gate(permissionContentRead, <GiveGiftsPage />);
+	}
 	if (route.path === "/stickers") {
 		return gate(permissionContentRead, <StickerSetsPage kind="stickers" />);
 	}

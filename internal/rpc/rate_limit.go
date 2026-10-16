@@ -134,3 +134,42 @@ func (r *Router) checkAuthCodeRateLimitKey(ctx context.Context, key string, limi
 		zap.Int("retry_after", retryAfter))
 	return floodWaitErr(retryAfter)
 }
+
+const (
+	giftRateLimitKeyPrefix = "payments:gift:"
+	defaultGiftRateWindow  = 2 * time.Minute
+)
+
+// checkGiftRateLimit 对礼物类变更 RPC（购买/升级/转移/合成/转换/改价/报价等）
+// 按用户限流；目录、动画与已收礼物列表等只读路径不限流。
+// Limiter 未装配或 GiftRateLimit <= 0 时不限流（行为不变）。
+func (r *Router) checkGiftRateLimit(ctx context.Context, userID int64) error {
+	if r.deps.Limiter == nil || userID == 0 {
+		return nil
+	}
+	limit := r.cfg.GiftRateLimit
+	if limit <= 0 {
+		return nil
+	}
+	window := r.cfg.GiftRateWindow
+	if window <= 0 {
+		window = defaultGiftRateWindow
+	}
+	allowed, retryAfter, err := r.deps.Limiter.AllowN(ctx, giftRateLimitKeyPrefix+strconv.FormatInt(userID, 10), 1, limit, window)
+	if err != nil {
+		r.log.Warn("star gift rate limiter failed",
+			append(r.contextLogFields(ctx),
+				zap.Error(err),
+				zap.Int64("user_id", userID),
+				zap.Int("limit", limit),
+				zap.Duration("window", window),
+			)...)
+		return internalErr()
+	}
+	if allowed {
+		return nil
+	}
+	r.log.Info("star gift mutation rate limited (flood wait)",
+		zap.Int64("user_id", userID), zap.Int("retry_after", retryAfter))
+	return floodWaitErr(retryAfter)
+}

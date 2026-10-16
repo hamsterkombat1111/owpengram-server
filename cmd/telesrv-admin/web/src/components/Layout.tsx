@@ -19,9 +19,12 @@ import {
   ShieldCheck,
   Smile,
   Stamp,
+  Trophy,
   Users,
   Zap,
-	Sticker
+  Sticker,
+  Gift,
+  Send
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { api, errorMessage } from "../api";
@@ -288,9 +291,18 @@ export function Shell({
           {canReadUsernames && (
             <NavLink icon={<AtSign size={16} />} href="/collectible-usernames" route={route} navigate={navigate}>{"NFT Usernames"}</NavLink>
           )}
+          {canReadAccounts && (
+            <NavLink icon={<Trophy size={16} />} href="/account-ratings" route={route} navigate={navigate}>{"Account Rating"}</NavLink>
+          )}
           {canReadStorage && (
             <NavLink icon={<Database size={16} />} href="/storage" route={route} navigate={navigate}>{"Storage"}</NavLink>
           )}
+			{canReadContent && (
+			  <NavLink icon={<Gift size={16} />} href="/gifts" route={route} navigate={navigate}>{"Star Gifts"}</NavLink>
+			)}
+			{canReadContent && (
+			  <NavLink icon={<Send size={16} />} href="/give-gifts" route={route} navigate={navigate}>{"Give Gifts"}</NavLink>
+			)}
 			{canReadContent && (
 			  <NavLink icon={<Sticker size={16} />} href="/stickers" route={route} navigate={navigate}>{"Stickers"}</NavLink>
 			)}

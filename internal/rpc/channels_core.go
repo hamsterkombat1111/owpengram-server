@@ -194,6 +194,7 @@ func (r *Router) onChannelsGetFullChannel(ctx context.Context, input tg.InputCha
 		if err := r.applyTranslationDisabledToChannelFull(ctx, userID, ref.ID, &full); err != nil {
 			return nil, err
 		}
+		r.applyStarGiftsCountToChannelFull(ctx, ref.ID, &full)
 		r.applyStoriesPinnedAvailableToChannelFull(ctx, userID, ref.ID, &full)
 		r.applyNotifySettingsToChannelFull(ctx, userID, ref.ID, &full)
 		r.applyBotVerificationToChannelFull(ctx, ref.ID, &full)
@@ -215,6 +216,7 @@ func (r *Router) onChannelsGetFullChannel(ctx context.Context, input tg.InputCha
 	}
 	full := tgChannelFull(view, r.cfg.PublicBaseURL)
 	r.applyChannelStatsCapability(full)
+	r.applyStarGiftsCountToChannelFull(ctx, view.Channel.ID, full)
 	userIDs := []int64{view.Channel.CreatorUserID, view.Self.UserID}
 	// 注：Bots 过滤实际会返回群内 bot（TestGroupBotRPCShape 覆盖），这里据此富化 full.BotInfo。
 	// （此前审计误判为死代码，已由单测纠正——勿删。）
@@ -277,6 +279,16 @@ func (r *Router) applyWelcomeMessagesToFullChat(ctx context.Context, channelID i
 		value.HasWelcomeMessages = hasAny
 	}
 	return nil
+}
+
+func (r *Router) applyStarGiftsCountToChannelFull(ctx context.Context, channelID int64, full *tg.ChannelFull) {
+	if r.deps.Gifts == nil || channelID == 0 || full == nil {
+		return
+	}
+	n, err := r.deps.Gifts.CountSaved(ctx, domain.Peer{Type: domain.PeerTypeChannel, ID: channelID})
+	if err == nil && n > 0 {
+		full.SetStargiftsCount(n)
+	}
 }
 
 type channelReadModelResolver interface {

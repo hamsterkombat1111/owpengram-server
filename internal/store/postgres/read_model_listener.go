@@ -39,6 +39,7 @@ type ReadModelCacheSet struct {
 	PeerIdentities      PeerIdentityReadModelCache
 	BaseUsers           BaseUserCache
 	BotProfiles         BotProfileReadModelCache
+	StarGifts           StarGiftCatalogCache
 	AccountSettings     AccountSettingsReadModelCache
 	UserProjectionFacts UserProjectionFactReadModelCache
 }
@@ -46,6 +47,11 @@ type ReadModelCacheSet struct {
 type UserProjectionFactReadModelCache interface {
 	InvalidateAccountFreezeFact(userID int64)
 	FlushUserProjectionFactReadModel()
+}
+
+type StarGiftCatalogCache interface {
+	InvalidateStarGiftCatalog()
+	FlushStarGiftCatalog()
 }
 
 type AccountSettingsReadModelCache interface {
@@ -272,6 +278,7 @@ func (l *ReadModelChangeListener) empty() bool {
 		l.caches.PeerIdentities == nil &&
 		l.caches.BaseUsers == nil &&
 		l.caches.BotProfiles == nil &&
+		l.caches.StarGifts == nil &&
 		l.caches.AccountSettings == nil &&
 		l.caches.UserProjectionFacts == nil
 }
@@ -362,6 +369,10 @@ func (l *ReadModelChangeListener) flush(reasons ...string) {
 		l.caches.BotProfiles.FlushBotProfileReadModel()
 		flushed = append(flushed, "bot_profiles")
 	}
+	if l.caches.StarGifts != nil {
+		l.caches.StarGifts.FlushStarGiftCatalog()
+		flushed = append(flushed, "star_gifts")
+	}
 	if l.caches.AccountSettings != nil {
 		l.caches.AccountSettings.FlushAccountSettingsReadModel()
 		flushed = append(flushed, "account_settings")
@@ -439,6 +450,10 @@ func (l *ReadModelChangeListener) handlePayload(payload string) {
 			if l.caches.PeerIdentities != nil {
 				l.caches.PeerIdentities.InvalidatePeerIdentityReadModel(domain.Peer{Type: domain.PeerTypeUser, ID: evt.PeerID})
 			}
+		}
+	case "star_gift_catalog":
+		if l.caches.StarGifts != nil {
+			l.caches.StarGifts.InvalidateStarGiftCatalog()
 		}
 	case "user_base":
 		if evt.PeerType == "user" && evt.PeerID != 0 {

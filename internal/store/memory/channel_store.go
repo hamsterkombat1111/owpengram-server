@@ -72,10 +72,12 @@ type ChannelStore struct {
 	topics    map[int64]map[int]domain.ChannelForumTopic
 	messages  map[int64][]domain.ChannelMessage
 	reactions map[int64]map[int]map[int64][]domain.ChannelMessagePeerReaction
-	top       map[int64]map[string]domain.TopMessageReaction
-	recent    map[int64]map[string]domain.RecentMessageReaction
-	mentions  map[int64]map[int64]map[int]memoryMention
-	msgViews  map[int64]map[int]int
+	// paidReactions 是 per-(channel,message,user) 付费 reaction 累计星数 + 匿名标志。
+	paidReactions map[int64]map[int]map[int64]memoryPaidReaction
+	top           map[int64]map[string]domain.TopMessageReaction
+	recent        map[int64]map[string]domain.RecentMessageReaction
+	mentions      map[int64]map[int64]map[int]memoryMention
+	msgViews      map[int64]map[int]int
 	// msgViewers stores the first durable view time for each unique viewer.
 	// Keeping the timestamp (instead of only a set membership bit) lets stats
 	// produce real event-time graphs while preserving idempotent view counts.
@@ -135,6 +137,7 @@ func NewChannelStore() *ChannelStore {
 		topics:                 make(map[int64]map[int]domain.ChannelForumTopic),
 		messages:               make(map[int64][]domain.ChannelMessage),
 		reactions:              make(map[int64]map[int]map[int64][]domain.ChannelMessagePeerReaction),
+		paidReactions:          make(map[int64]map[int]map[int64]memoryPaidReaction),
 		top:                    make(map[int64]map[string]domain.TopMessageReaction),
 		recent:                 make(map[int64]map[string]domain.RecentMessageReaction),
 		mentions:               make(map[int64]map[int64]map[int]memoryMention),

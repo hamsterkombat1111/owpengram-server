@@ -686,7 +686,7 @@ func (s *Service) validateEmojiStatusUpdate(ctx context.Context, userID int64, s
 		return domain.User{}, err
 	}
 	if !status.Valid() {
-		return domain.User{}, domain.ErrEmojiStatusCollectibleInvalid
+		return domain.User{}, domain.ErrStarGiftCollectibleInvalid
 	}
 	if !status.Empty() && !self.PremiumActiveAt(time.Now().Unix()) {
 		return domain.User{}, domain.ErrPremiumRequired
