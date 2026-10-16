@@ -60,6 +60,10 @@ type Config struct {
 	OutboundPushTimeout time.Duration
 	SendRateLimit       int
 	SendRateWindow      time.Duration
+	// GiftRateLimit/GiftRateWindow 限制礼物类变更 RPC（购买/升级/转移/合成/转换/报价等）
+	// 的每用户频率；<=0 关闭（行为不变）。
+	GiftRateLimit  int
+	GiftRateWindow time.Duration
 	// AuthCode*RateLimit protects the unauthenticated sendCode/resendCode write path.
 	// The phone budget is keyed by SHA-256(normalized phone), never by the plaintext phone;
 	// the second budget is keyed by the physical connection's raw auth_key_id.

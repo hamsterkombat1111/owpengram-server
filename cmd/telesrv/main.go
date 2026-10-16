@@ -1612,6 +1612,8 @@ func run(logger *zap.Logger) error {
 		OutboundPushTimeout:      cfg.OutboundPushTimeout,
 		SendRateLimit:            cfg.SendRateLimit,
 		SendRateWindow:           cfg.SendRateWindow,
+		GiftRateLimit:            cfg.GiftRateLimit,
+		GiftRateWindow:           cfg.GiftRateWindow,
 		AuthCodePhoneRateLimit:   cfg.AuthCodePhoneRateLimit,
 		AuthCodeAuthKeyRateLimit: cfg.AuthCodeAuthKeyRateLimit,
 		AuthCodeRateWindow:       cfg.AuthCodeRateWindow,
